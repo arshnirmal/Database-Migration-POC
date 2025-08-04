@@ -1,0 +1,25 @@
+{
+  "name": "fantasy-game-cassandra-poc",
+  "version": "1.0.0",
+  "description": "Node.js POC for Fantasy Game using Apache Cassandra",
+  "main": "fantasy-game-poc.js",
+  "scripts": {
+    "start": "node fantasy-game-poc.js",
+    "test": "node fantasy-game-poc.js --users 100 --tests 50",
+    "test-large": "node fantasy-game-poc.js --users 5000 --tests 500",
+    "test-skip-data": "node fantasy-game-poc.js --skip-data --tests 200"
+  },
+  "dependencies": {
+    "cassandra-driver": "^4.8.0",
+    "uuid": "^9.0.1",
+    "commander": "^11.1.0",
+    "colors": "^1.4.0",
+    "pg": "^8.16.3"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "keywords": ["cassandra", "poc", "fantasy", "game", "performance"],
+  "author": "Your Name",
+  "license": "MIT"
+}
