@@ -290,3 +290,34 @@ transferTeam    9942     13.16    12.32    6.01     154.72   18.95    29.67
 ================================================================================
 🎉 Complete optimized POC testing completed successfully
 🔌 Disconnected from Cassandra
+
+Windows
+================================================================================
+FANTASY GAME CASSANDRA POC - ENHANCED PERFORMANCE REPORT
+================================================================================
+Generated: 2025-08-04T17:26:20.312Z
+Total Errors: 0 (0.00%)
+Transfer Validation Errors: 0
+Memory Usage: 31MB heap
+
+OPERATION PERFORMANCE SUMMARY:
+--------------------------------------------------
+USERLOGIN            | 10.54ms avg, 71005 calls
+GETUSERPROFILE       | 5.4ms avg, 120420 calls
+SAVETEAM             | 15.83ms avg, 75249 calls
+GETUSERTEAMS         | 5.78ms avg, 73276 calls
+TRANSFERTEAM         | 16.65ms avg, 9939 calls
+
+DETAILED STATISTICS:
+--------------------------------------------------------------------------------
+Operation        Calls    Avg(ms)  Med(ms)  Min(ms)  Max(ms)  P95(ms)  P99(ms)
+--------------------------------------------------------------------------------
+userLogin       71005    10.54    9.12     3.55     191.05   18.66    30.97
+getUserProfile  120420   5.4      4.62     1.13     177.39   10.07    16.71
+saveTeam        75249    15.83    13.9     6.52     194.04   26.93    43.84
+getUserTeams    73276    5.78     4.98     1.64     177.56   10.7     17.54
+transferTeam    9939     16.65    14.66    7.43     174.23   28.41    42.28
+
+================================================================================
+🎉 Complete optimized POC testing completed successfully
+🔌 Disconnected from Cassandra

@@ -16,7 +16,8 @@ WITH REPLICATION = {
     'class': 'NetworkTopologyStrategy',
     'datacenter1': 3  -- RF = 3 across primary DC
 }
-AND DURABLE_WRITES = true;
+AND DURABLE_WRITES = true
+AND TABLETS = {'enabled': false};
 
 -- Switch to the keyspace
 USE fantasy_game;
@@ -203,7 +204,5 @@ CREATE TABLE IF NOT EXISTS user_team_transfers (
 -- Create secondary indexes for common queries
 CREATE INDEX IF NOT EXISTS idx_users_source_id ON users (source_id);
 CREATE INDEX IF NOT EXISTS idx_teams_gameset ON user_teams_latest (current_gameset_id);
-
-DESCRIBE KEYSPACE fantasy_game;
 
 -- Script completed with ScyllaDB optimizations
