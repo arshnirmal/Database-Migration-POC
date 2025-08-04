@@ -1,0 +1,5 @@
+.idea/
+
+/poc-test/cassandra-logs/
+/poc-test/node_modules/
+/poc-test/package-lock.json

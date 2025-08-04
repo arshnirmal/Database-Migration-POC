@@ -1,0 +1,23 @@
+services:
+  scylla-docker1:
+    image: scylladb/scylla
+    container_name: scylla-docker1
+    ports:
+      - "19042:9042"
+    environment:
+      - CLUSTER_NAME=scylla-docker
+    command:
+      - --alternator-port 8000
+      - --alternator-write-isolation unsafe
+      - --smp 1
+      
+  scylla-docker2:
+    image: scylladb/scylla
+    container_name: scylla-docker2
+    environment:
+      - CLUSTER_NAME=scylla-docker
+    command:
+      - --seeds="scylla-docker1"
+      - --alternator-port 8000
+      - --alternator-write-isolation unsafe
+      - --smp 1

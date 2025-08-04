@@ -1,0 +1,17 @@
+INSERT INTO point_calculation.entity_stat (sport_id, stat_id, stat_name, calculation_type)
+VALUES  (2, 1, 'Red Card', 'Fixed'),
+        (2, 2, 'Yellow Card', 'Fixed'),
+        (2, 3, 'Foul', 'Fixed'),
+        (2, 4, '[n] Goals Conceded', 'Flat'),
+        (2, 5, 'Penalty Conceded', 'Fixed'),
+        (2, 6, 'Penalty Missed', 'Fixed'),
+        (2, 7, 'Own Goal', 'Fixed'),
+        (2, 8, 'Goals Scored', 'Fixed'),
+        (2, 9, 'Clean Sheet', 'Fixed'),
+        (2, 10, 'Saving Penalty', 'Fixed'),
+        (2, 11, 'Every [n] saves', 'Flat'),
+        (2, 12, '60 Mins On Pitch', 'Fixed'),
+        (2, 13, 'Goal From Outside Box', 'Fixed'),
+        (2, 14, 'Assist', 'Fixed'),
+        (2, 15, 'Penalty Scored', 'Fixed'),
+        (2, 16, 'More than [n] balls recovered', 'Flat'); 

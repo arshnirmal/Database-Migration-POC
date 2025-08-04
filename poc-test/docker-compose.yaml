@@ -1,0 +1,79 @@
+services:
+  cassandra-node1:
+    image: cassandra:latest
+    container_name: fantasy-cassandra-node1
+    hostname: cassandra-node1
+    ports:
+      - "9042:9042"
+      - "7199:7199"
+    environment:
+      - CASSANDRA_SEEDS=cassandra-node1,cassandra-node2
+      - CASSANDRA_CLUSTER_NAME=fantasy_game_cluster
+      - CASSANDRA_DC=datacenter1
+      - CASSANDRA_RACK=rack1
+      - CASSANDRA_ENDPOINT_SNITCH=GossipingPropertyFileSnitch
+      - CASSANDRA_NUM_TOKENS=16
+      - MAX_HEAP_SIZE=1G      
+      - JVM_OPTS=-XX:+UseG1GC -XX:+UseStringDeduplication
+    volumes:
+      - cassandra-node1-data:/var/lib/cassandra
+      - ./cassandra-logs:/var/log/cassandra
+    networks:
+      - cassandra-network
+
+  cassandra-node2:
+    image: cassandra:latest
+    container_name: fantasy-cassandra-node2
+    hostname: cassandra-node2
+    ports:
+      - "9043:9042"
+      - "7200:7199"
+    environment:
+      - CASSANDRA_SEEDS=cassandra-node1,cassandra-node2
+      - CASSANDRA_CLUSTER_NAME=fantasy_game_cluster
+      - CASSANDRA_DC=datacenter1
+      - CASSANDRA_RACK=rack2
+      - CASSANDRA_ENDPOINT_SNITCH=GossipingPropertyFileSnitch
+      - CASSANDRA_NUM_TOKENS=16
+      - MAX_HEAP_SIZE=1G      
+      - JVM_OPTS=-XX:+UseG1GC -XX:+UseStringDeduplication
+    volumes:
+      - cassandra-node2-data:/var/lib/cassandra
+      - ./cassandra-logs:/var/log/cassandra
+    networks:
+      - cassandra-network
+    depends_on:
+      - cassandra-node1
+
+  cassandra-node3:
+    image: cassandra:latest
+    container_name: fantasy-cassandra-node3
+    hostname: cassandra-node3
+    ports:
+      - "9044:9042"
+      - "7201:7199"
+    environment:
+      - CASSANDRA_SEEDS=cassandra-node1,cassandra-node2
+      - CASSANDRA_CLUSTER_NAME=fantasy_game_cluster
+      - CASSANDRA_DC=datacenter1
+      - CASSANDRA_RACK=rack3
+      - CASSANDRA_ENDPOINT_SNITCH=GossipingPropertyFileSnitch
+      - CASSANDRA_NUM_TOKENS=16
+      - MAX_HEAP_SIZE=1G      
+      - JVM_OPTS=-XX:+UseG1GC -XX:+UseStringDeduplication
+    volumes:
+      - cassandra-node3-data:/var/lib/cassandra
+      - ./cassandra-logs:/var/log/cassandra
+    networks:
+      - cassandra-network
+    depends_on:
+      - cassandra-node2
+
+volumes:
+  cassandra-node1-data:
+  cassandra-node2-data:
+  cassandra-node3-data:
+
+networks:
+  cassandra-network:
+    driver: bridge

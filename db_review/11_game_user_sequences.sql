@@ -1,0 +1,1 @@
+CREATE SEQUENCE game_user.user_id_seq; 

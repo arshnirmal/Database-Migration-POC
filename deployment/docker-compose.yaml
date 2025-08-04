@@ -1,0 +1,445 @@
+version: '3.8'
+
+networks:
+  cassandra-cluster:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
+volumes:
+  cassandra1-data:
+    driver: local
+  cassandra1-commitlog:
+    driver: local
+  cassandra1-config:
+    driver: local
+  cassandra2-data:
+    driver: local
+  cassandra2-commitlog:
+    driver: local
+  cassandra2-config:
+    driver: local
+  cassandra3-data:
+    driver: local
+  cassandra3-commitlog:
+    driver: local
+  cassandra3-config:
+    driver: local
+  cassandra4-data:
+    driver: local
+  cassandra4-commitlog:
+    driver: local
+  cassandra4-config:
+    driver: local
+  cassandra5-data:
+    driver: local
+  cassandra5-commitlog:
+    driver: local
+  cassandra5-config:
+    driver: local
+  cassandra6-data:
+    driver: local
+  cassandra6-commitlog:
+    driver: local
+  cassandra6-config:
+    driver: local
+
+services:
+  # ====================================================================
+  # DATACENTER 1 NODES (Rack Aware Configuration)
+  # ====================================================================
+  
+  cassandra-dc1-rack1-node1:
+    image: cassandra:4.1.3
+    container_name: cassandra-dc1-rack1-node1
+    hostname: cassandra-dc1-rack1-node1
+    networks:
+      cassandra-cluster:
+        ipv4_address: 172.20.1.10
+    ports:
+      - "9042:9042"  # CQL native transport
+      - "7000:7000"  # Inter-node cluster communication
+      - "7001:7001"  # SSL inter-node cluster communication
+      - "7199:7199"  # JMX monitoring
+      - "9160:9160"  # Thrift client API (legacy)
+    volumes:
+      - cassandra1-data:/var/lib/cassandra/data
+      - cassandra1-commitlog:/var/lib/cassandra/commitlog
+      - cassandra1-config:/etc/cassandra
+      - ./cassandra:/docker-entrypoint-initdb.d
+    environment:
+      # Cluster Configuration
+      - CASSANDRA_CLUSTER_NAME=FantasyGameCluster
+      - CASSANDRA_DC=datacenter1
+      - CASSANDRA_RACK=rack1
+      - CASSANDRA_ENDPOINT_SNITCH=GossipingPropertyFileSnitch
+      - CASSANDRA_SEEDS=cassandra-dc1-rack1-node1,cassandra-dc1-rack2-node2,cassandra-dc2-rack1-node4
+      
+      # Network Configuration
+      - CASSANDRA_LISTEN_ADDRESS=172.20.1.10
+      - CASSANDRA_BROADCAST_ADDRESS=172.20.1.10
+      - CASSANDRA_RPC_ADDRESS=0.0.0.0
+      - CASSANDRA_BROADCAST_RPC_ADDRESS=172.20.1.10
+      
+      # Performance Tuning
+      - CASSANDRA_NUM_TOKENS=16
+      - MAX_HEAP_SIZE=8G
+      - HEAP_NEWSIZE=2G
+      - JVM_OPTS=-Djava.net.preferIPv4Stack=true -XX:+UseG1GC -XX:G1RSetUpdatingPauseTimePercent=5 -XX:MaxGCPauseMillis=200 -XX:InitiatingHeapOccupancyPercent=25 -XX:+UnlockExperimentalVMOptions -XX:+UseJVMCICompiler
+      
+      # Security & Consistency
+      - CASSANDRA_AUTHENTICATOR=PasswordAuthenticator
+      - CASSANDRA_AUTHORIZER=CassandraAuthorizer
+      - CASSANDRA_AUTO_BOOTSTRAP=true
+    deploy:
+      resources:
+        limits:
+          memory: 12G
+          cpus: '4.0'
+        reservations:
+          memory: 8G
+          cpus: '2.0'
+    healthcheck:
+      test: ["CMD-SHELL", "cqlsh -e 'SELECT now() FROM system.local'"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 2m
+    restart: unless-stopped
+
+  cassandra-dc1-rack2-node2:
+    image: cassandra:4.1.3
+    container_name: cassandra-dc1-rack2-node2
+    hostname: cassandra-dc1-rack2-node2
+    networks:
+      cassandra-cluster:
+        ipv4_address: 172.20.1.11
+    ports:
+      - "9043:9042"
+      - "7010:7000"
+      - "7011:7001"
+      - "7299:7199"
+    volumes:
+      - cassandra2-data:/var/lib/cassandra/data
+      - cassandra2-commitlog:/var/lib/cassandra/commitlog
+      - cassandra2-config:/etc/cassandra
+      - ./cassandra:/docker-entrypoint-initdb.d
+    environment:
+      - CASSANDRA_CLUSTER_NAME=FantasyGameCluster
+      - CASSANDRA_DC=datacenter1
+      - CASSANDRA_RACK=rack2
+      - CASSANDRA_ENDPOINT_SNITCH=GossipingPropertyFileSnitch
+      - CASSANDRA_SEEDS=cassandra-dc1-rack1-node1,cassandra-dc1-rack2-node2,cassandra-dc2-rack1-node4
+      - CASSANDRA_LISTEN_ADDRESS=172.20.1.11
+      - CASSANDRA_BROADCAST_ADDRESS=172.20.1.11
+      - CASSANDRA_RPC_ADDRESS=0.0.0.0
+      - CASSANDRA_BROADCAST_RPC_ADDRESS=172.20.1.11
+      - CASSANDRA_NUM_TOKENS=16
+      - MAX_HEAP_SIZE=8G
+      - HEAP_NEWSIZE=2G
+      - JVM_OPTS=-Djava.net.preferIPv4Stack=true -XX:+UseG1GC -XX:G1RSetUpdatingPauseTimePercent=5 -XX:MaxGCPauseMillis=200 -XX:InitiatingHeapOccupancyPercent=25 -XX:+UnlockExperimentalVMOptions -XX:+UseJVMCICompiler
+      - CASSANDRA_AUTHENTICATOR=PasswordAuthenticator
+      - CASSANDRA_AUTHORIZER=CassandraAuthorizer
+      - CASSANDRA_AUTO_BOOTSTRAP=true
+    deploy:
+      resources:
+        limits:
+          memory: 12G
+          cpus: '4.0'
+        reservations:
+          memory: 8G
+          cpus: '2.0'
+    healthcheck:
+      test: ["CMD-SHELL", "cqlsh -e 'SELECT now() FROM system.local'"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 2m
+    restart: unless-stopped
+    depends_on:
+      cassandra-dc1-rack1-node1:
+        condition: service_healthy
+
+  cassandra-dc1-rack3-node3:
+    image: cassandra:4.1.3
+    container_name: cassandra-dc1-rack3-node3
+    hostname: cassandra-dc1-rack3-node3
+    networks:
+      cassandra-cluster:
+        ipv4_address: 172.20.1.12
+    ports:
+      - "9044:9042"
+      - "7020:7000"
+      - "7021:7001"
+      - "7399:7199"
+    volumes:
+      - cassandra3-data:/var/lib/cassandra/data
+      - cassandra3-commitlog:/var/lib/cassandra/commitlog
+      - cassandra3-config:/etc/cassandra
+      - ./cassandra:/docker-entrypoint-initdb.d
+    environment:
+      - CASSANDRA_CLUSTER_NAME=FantasyGameCluster
+      - CASSANDRA_DC=datacenter1
+      - CASSANDRA_RACK=rack3
+      - CASSANDRA_ENDPOINT_SNITCH=GossipingPropertyFileSnitch
+      - CASSANDRA_SEEDS=cassandra-dc1-rack1-node1,cassandra-dc1-rack2-node2,cassandra-dc2-rack1-node4
+      - CASSANDRA_LISTEN_ADDRESS=172.20.1.12
+      - CASSANDRA_BROADCAST_ADDRESS=172.20.1.12
+      - CASSANDRA_RPC_ADDRESS=0.0.0.0
+      - CASSANDRA_BROADCAST_RPC_ADDRESS=172.20.1.12
+      - CASSANDRA_NUM_TOKENS=16
+      - MAX_HEAP_SIZE=8G
+      - HEAP_NEWSIZE=2G
+      - JVM_OPTS=-Djava.net.preferIPv4Stack=true -XX:+UseG1GC -XX:G1RSetUpdatingPauseTimePercent=5 -XX:MaxGCPauseMillis=200 -XX:InitiatingHeapOccupancyPercent=25 -XX:+UnlockExperimentalVMOptions -XX:+UseJVMCICompiler
+      - CASSANDRA_AUTHENTICATOR=PasswordAuthenticator
+      - CASSANDRA_AUTHORIZER=CassandraAuthorizer
+      - CASSANDRA_AUTO_BOOTSTRAP=true
+    deploy:
+      resources:
+        limits:
+          memory: 12G
+          cpus: '4.0'
+        reservations:
+          memory: 8G
+          cpus: '2.0'
+    healthcheck:
+      test: ["CMD-SHELL", "cqlsh -e 'SELECT now() FROM system.local'"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 2m
+    restart: unless-stopped
+    depends_on:
+      cassandra-dc1-rack2-node2:
+        condition: service_healthy
+
+  # ====================================================================
+  # DATACENTER 2 NODES (Rack Aware Configuration)
+  # ====================================================================
+
+  cassandra-dc2-rack1-node4:
+    image: cassandra:4.1.3
+    container_name: cassandra-dc2-rack1-node4
+    hostname: cassandra-dc2-rack1-node4
+    networks:
+      cassandra-cluster:
+        ipv4_address: 172.20.2.10
+    ports:
+      - "9045:9042"
+      - "7030:7000"
+      - "7031:7001"
+      - "7499:7199"
+    volumes:
+      - cassandra4-data:/var/lib/cassandra/data
+      - cassandra4-commitlog:/var/lib/cassandra/commitlog
+      - cassandra4-config:/etc/cassandra
+      - ./cassandra:/docker-entrypoint-initdb.d
+    environment:
+      - CASSANDRA_CLUSTER_NAME=FantasyGameCluster
+      - CASSANDRA_DC=datacenter2
+      - CASSANDRA_RACK=rack1
+      - CASSANDRA_ENDPOINT_SNITCH=GossipingPropertyFileSnitch
+      - CASSANDRA_SEEDS=cassandra-dc1-rack1-node1,cassandra-dc1-rack2-node2,cassandra-dc2-rack1-node4
+      - CASSANDRA_LISTEN_ADDRESS=172.20.2.10
+      - CASSANDRA_BROADCAST_ADDRESS=172.20.2.10
+      - CASSANDRA_RPC_ADDRESS=0.0.0.0
+      - CASSANDRA_BROADCAST_RPC_ADDRESS=172.20.2.10
+      - CASSANDRA_NUM_TOKENS=16
+      - MAX_HEAP_SIZE=8G
+      - HEAP_NEWSIZE=2G
+      - JVM_OPTS=-Djava.net.preferIPv4Stack=true -XX:+UseG1GC -XX:G1RSetUpdatingPauseTimePercent=5 -XX:MaxGCPauseMillis=200 -XX:InitiatingHeapOccupancyPercent=25 -XX:+UnlockExperimentalVMOptions -XX:+UseJVMCICompiler
+      - CASSANDRA_AUTHENTICATOR=PasswordAuthenticator
+      - CASSANDRA_AUTHORIZER=CassandraAuthorizer
+      - CASSANDRA_AUTO_BOOTSTRAP=true
+    deploy:
+      resources:
+        limits:
+          memory: 12G
+          cpus: '4.0'
+        reservations:
+          memory: 8G
+          cpus: '2.0'
+    healthcheck:
+      test: ["CMD-SHELL", "cqlsh -e 'SELECT now() FROM system.local'"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 2m
+    restart: unless-stopped
+    depends_on:
+      cassandra-dc1-rack1-node1:
+        condition: service_healthy
+
+  cassandra-dc2-rack2-node5:
+    image: cassandra:4.1.3
+    container_name: cassandra-dc2-rack2-node5
+    hostname: cassandra-dc2-rack2-node5
+    networks:
+      cassandra-cluster:
+        ipv4_address: 172.20.2.11
+    ports:
+      - "9046:9042"
+      - "7040:7000"
+      - "7041:7001"
+      - "7599:7199"
+    volumes:
+      - cassandra5-data:/var/lib/cassandra/data
+      - cassandra5-commitlog:/var/lib/cassandra/commitlog
+      - cassandra5-config:/etc/cassandra
+      - ./cassandra:/docker-entrypoint-initdb.d
+    environment:
+      - CASSANDRA_CLUSTER_NAME=FantasyGameCluster
+      - CASSANDRA_DC=datacenter2
+      - CASSANDRA_RACK=rack2
+      - CASSANDRA_ENDPOINT_SNITCH=GossipingPropertyFileSnitch
+      - CASSANDRA_SEEDS=cassandra-dc1-rack1-node1,cassandra-dc1-rack2-node2,cassandra-dc2-rack1-node4
+      - CASSANDRA_LISTEN_ADDRESS=172.20.2.11
+      - CASSANDRA_BROADCAST_ADDRESS=172.20.2.11
+      - CASSANDRA_RPC_ADDRESS=0.0.0.0
+      - CASSANDRA_BROADCAST_RPC_ADDRESS=172.20.2.11
+      - CASSANDRA_NUM_TOKENS=16
+      - MAX_HEAP_SIZE=8G
+      - HEAP_NEWSIZE=2G
+      - JVM_OPTS=-Djava.net.preferIPv4Stack=true -XX:+UseG1GC -XX:G1RSetUpdatingPauseTimePercent=5 -XX:MaxGCPauseMillis=200 -XX:InitiatingHeapOccupancyPercent=25 -XX:+UnlockExperimentalVMOptions -XX:+UseJVMCICompiler
+      - CASSANDRA_AUTHENTICATOR=PasswordAuthenticator
+      - CASSANDRA_AUTHORIZER=CassandraAuthorizer
+      - CASSANDRA_AUTO_BOOTSTRAP=true
+    deploy:
+      resources:
+        limits:
+          memory: 12G
+          cpus: '4.0'
+        reservations:
+          memory: 8G
+          cpus: '2.0'
+    healthcheck:
+      test: ["CMD-SHELL", "cqlsh -e 'SELECT now() FROM system.local'"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 2m
+    restart: unless-stopped
+    depends_on:
+      cassandra-dc2-rack1-node4:
+        condition: service_healthy
+
+  cassandra-dc2-rack3-node6:
+    image: cassandra:4.1.3
+    container_name: cassandra-dc2-rack3-node6
+    hostname: cassandra-dc2-rack3-node6
+    networks:
+      cassandra-cluster:
+        ipv4_address: 172.20.2.12
+    ports:
+      - "9047:9042"
+      - "7050:7000"
+      - "7051:7001"
+      - "7699:7199"
+    volumes:
+      - cassandra6-data:/var/lib/cassandra/data
+      - cassandra6-commitlog:/var/lib/cassandra/commitlog
+      - cassandra6-config:/etc/cassandra
+      - ./cassandra:/docker-entrypoint-initdb.d
+    environment:
+      - CASSANDRA_CLUSTER_NAME=FantasyGameCluster
+      - CASSANDRA_DC=datacenter2
+      - CASSANDRA_RACK=rack3
+      - CASSANDRA_ENDPOINT_SNITCH=GossipingPropertyFileSnitch
+      - CASSANDRA_SEEDS=cassandra-dc1-rack1-node1,cassandra-dc1-rack2-node2,cassandra-dc2-rack1-node4
+      - CASSANDRA_LISTEN_ADDRESS=172.20.2.12
+      - CASSANDRA_BROADCAST_ADDRESS=172.20.2.12
+      - CASSANDRA_RPC_ADDRESS=0.0.0.0
+      - CASSANDRA_BROADCAST_RPC_ADDRESS=172.20.2.12
+      - CASSANDRA_NUM_TOKENS=16
+      - MAX_HEAP_SIZE=8G
+      - HEAP_NEWSIZE=2G
+      - JVM_OPTS=-Djava.net.preferIPv4Stack=true -XX:+UseG1GC -XX:G1RSetUpdatingPauseTimePercent=5 -XX:MaxGCPauseMillis=200 -XX:InitiatingHeapOccupancyPercent=25 -XX:+UnlockExperimentalVMOptions -XX:+UseJVMCICompiler
+      - CASSANDRA_AUTHENTICATOR=PasswordAuthenticator
+      - CASSANDRA_AUTHORIZER=CassandraAuthorizer
+      - CASSANDRA_AUTO_BOOTSTRAP=true
+    deploy:
+      resources:
+        limits:
+          memory: 12G
+          cpus: '4.0'
+        reservations:
+          memory: 8G
+          cpus: '2.0'
+    healthcheck:
+      test: ["CMD-SHELL", "cqlsh -e 'SELECT now() FROM system.local'"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 2m
+    restart: unless-stopped
+    depends_on:
+      cassandra-dc2-rack2-node5:
+        condition: service_healthy
+
+  # ====================================================================
+  # MONITORING & MANAGEMENT SERVICES
+  # ====================================================================
+
+  cassandra-web:
+    image: markusgulden/cassandra-web:latest
+    container_name: cassandra-web-ui
+    hostname: cassandra-web-ui
+    networks:
+      - cassandra-cluster
+    ports:
+      - "3000:3000"
+    environment:
+      - CASSANDRA_HOST=cassandra-dc1-rack1-node1,cassandra-dc1-rack2-node2,cassandra-dc1-rack3-node3
+      - CASSANDRA_PORT=9042
+      - CASSANDRA_USER=cassandra
+      - CASSANDRA_PASSWORD=cassandra
+    depends_on:
+      cassandra-dc1-rack1-node1:
+        condition: service_healthy
+      cassandra-dc1-rack2-node2:
+        condition: service_healthy
+      cassandra-dc1-rack3-node3:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # Schema initialization service
+  cassandra-init:
+    image: cassandra:4.1.3
+    container_name: cassandra-init
+    networks:
+      - cassandra-cluster
+    volumes:
+      - ./cassandra:/scripts
+    environment:
+      - CQLSH_HOST=cassandra-dc1-rack1-node1
+      - CQLSH_PORT=9042
+    command: >
+      bash -c "
+        echo 'Waiting for Cassandra cluster to be ready...'
+        until cqlsh cassandra-dc1-rack1-node1 9042 -e 'SELECT now() FROM system.local'; do
+          echo 'Cassandra not ready yet, waiting 30 seconds...'
+          sleep 30
+        done
+        echo 'Cassandra cluster is ready! Initializing schema...'
+        cqlsh cassandra-dc1-rack1-node1 9042 -f /scripts/00_cassandra_keyspace_and_optimization.cql
+        cqlsh cassandra-dc1-rack1-node1 9042 -f /scripts/01_cassandra_master_data_tables.cql
+        cqlsh cassandra-dc1-rack1-node1 9042 -f /scripts/02_cassandra_user_gameplay_tables.cql
+        cqlsh cassandra-dc1-rack1-node1 9042 -f /scripts/03_cassandra_time_series_stats_tables.cql
+        cqlsh cassandra-dc1-rack1-node1 9042 -f /scripts/04_cassandra_leaderboard_league_tables.cql
+        echo 'Schema initialization completed successfully!'
+      "
+    depends_on:
+      cassandra-dc1-rack1-node1:
+        condition: service_healthy
+      cassandra-dc1-rack2-node2:
+        condition: service_healthy
+      cassandra-dc1-rack3-node3:
+        condition: service_healthy
+      cassandra-dc2-rack1-node4:
+        condition: service_healthy
+      cassandra-dc2-rack2-node5:
+        condition: service_healthy
+      cassandra-dc2-rack3-node6:
+        condition: service_healthy
+    restart: "no"
