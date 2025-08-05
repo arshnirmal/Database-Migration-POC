@@ -9,9 +9,7 @@ CREATE DATABASE IF NOT EXISTS fantasy_game;
 USE fantasy_game;
 
 CREATE SCHEMA IF NOT EXISTS game_user;
-
 CREATE SCHEMA IF NOT EXISTS gameplay;
-
 CREATE SCHEMA IF NOT EXISTS engine_config;
 
 -- ================================================================
@@ -64,46 +62,11 @@ CREATE TABLE IF NOT EXISTS game_user.users (
     profanity_status SMALLINT DEFAULT 1,
     PRIMARY KEY (partition_id, user_id),
     UNIQUE (source_id, partition_id)
-)
-PARTITION BY
-    LIST (partition_id);
-
--- Physical Shard 0: Partitions 0-9
-CREATE TABLE IF NOT EXISTS game_user.users_shard0 PARTITION OF game_user.users FOR
-VALUES
-    IN (0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
-
--- Physical Shard 1: Partitions 10-19
-CREATE TABLE IF NOT EXISTS game_user.users_shard1 PARTITION OF game_user.users FOR
-VALUES
-    IN (
-        10,
-        11,
-        12,
-        13,
-        14,
-        15,
-        16,
-        17,
-        18,
-        19
-    );
-
--- Physical Shard 2: Partitions 20-29
-CREATE TABLE IF NOT EXISTS game_user.users_shard2 PARTITION OF game_user.users FOR
-VALUES
-    IN (
-        20,
-        21,
-        22,
-        23,
-        24,
-        25,
-        26,
-        27,
-        28,
-        29
-    );
+) PARTITION BY LIST (partition_id) (
+    PARTITION shard_0 VALUES IN (0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
+    PARTITION shard_1 VALUES IN (10, 11, 12, 13, 14, 15, 16, 17, 18, 19),
+    PARTITION shard_2 VALUES IN (20, 21, 22, 23, 24, 25, 26, 27, 28, 29)
+);
 
 -- User teams table
 CREATE TABLE IF NOT EXISTS gameplay.user_teams (
@@ -119,55 +82,13 @@ CREATE TABLE IF NOT EXISTS gameplay.user_teams (
     partition_id SMALLINT NOT NULL,
     created_date TIMESTAMPTZ DEFAULT now(),
     updated_date TIMESTAMPTZ DEFAULT now(),
-    PRIMARY KEY (
-        partition_id,
-        season_id,
-        user_id,
-        team_no
-    ),
-    UNIQUE (
-        season_id,
-        team_name,
-        partition_id
-    )
-)
-PARTITION BY
-    LIST (partition_id);
-
--- Physical shards for user_teams
-CREATE TABLE IF NOT EXISTS gameplay.user_teams_shard0 PARTITION OF gameplay.user_teams FOR
-VALUES
-    IN (0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
-
-CREATE TABLE IF NOT EXISTS gameplay.user_teams_shard1 PARTITION OF gameplay.user_teams FOR
-VALUES
-    IN (
-        10,
-        11,
-        12,
-        13,
-        14,
-        15,
-        16,
-        17,
-        18,
-        19
-    );
-
-CREATE TABLE IF NOT EXISTS gameplay.user_teams_shard2 PARTITION OF gameplay.user_teams FOR
-VALUES
-    IN (
-        20,
-        21,
-        22,
-        23,
-        24,
-        25,
-        26,
-        27,
-        28,
-        29
-    );
+    PRIMARY KEY (partition_id, season_id, user_id, team_no),
+    UNIQUE (season_id, team_name, partition_id)
+) PARTITION BY LIST (partition_id) (
+    PARTITION shard_0 VALUES IN (0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
+    PARTITION shard_1 VALUES IN (10, 11, 12, 13, 14, 15, 16, 17, 18, 19),
+    PARTITION shard_2 VALUES IN (20, 21, 22, 23, 24, 25, 26, 27, 28, 29)
+);
 
 -- User team detail table
 CREATE TABLE IF NOT EXISTS gameplay.user_team_detail (
@@ -199,52 +120,12 @@ CREATE TABLE IF NOT EXISTS gameplay.user_team_detail (
     created_date TIMESTAMPTZ DEFAULT now(),
     updated_date TIMESTAMPTZ DEFAULT now(),
     device_id SMALLINT,
-    PRIMARY KEY (
-        partition_id,
-        season_id,
-        user_id,
-        team_no,
-        gameset_id,
-        gameday_id
-    )
-)
-PARTITION BY
-    LIST (partition_id);
-
--- Physical shards for user_team_detail
-CREATE TABLE IF NOT EXISTS gameplay.user_team_detail_shard0 PARTITION OF gameplay.user_team_detail FOR
-VALUES
-    IN (0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
-
-CREATE TABLE IF NOT EXISTS gameplay.user_team_detail_shard1 PARTITION OF gameplay.user_team_detail FOR
-VALUES
-    IN (
-        10,
-        11,
-        12,
-        13,
-        14,
-        15,
-        16,
-        17,
-        18,
-        19
-    );
-
-CREATE TABLE IF NOT EXISTS gameplay.user_team_detail_shard2 PARTITION OF gameplay.user_team_detail FOR
-VALUES
-    IN (
-        20,
-        21,
-        22,
-        23,
-        24,
-        25,
-        26,
-        27,
-        28,
-        29
-    );
+    PRIMARY KEY (partition_id, season_id, user_id, team_no, gameset_id, gameday_id)
+) PARTITION BY LIST (partition_id) (
+    PARTITION shard_0 VALUES IN (0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
+    PARTITION shard_1 VALUES IN (10, 11, 12, 13, 14, 15, 16, 17, 18, 19),
+    PARTITION shard_2 VALUES IN (20, 21, 22, 23, 24, 25, 26, 27, 28, 29)
+);
 
 -- Transfer details table
 CREATE TABLE IF NOT EXISTS gameplay.user_team_booster_transfer_detail (
@@ -265,54 +146,12 @@ CREATE TABLE IF NOT EXISTS gameplay.user_team_booster_transfer_detail (
     updated_date TIMESTAMPTZ DEFAULT now(),
     device_id SMALLINT,
     partition_id SMALLINT NOT NULL,
-    PRIMARY KEY (
-        partition_id,
-        season_id,
-        user_id,
-        team_no,
-        gameset_id,
-        gameday_id,
-        transfer_id,
-        booster_id
-    )
-)
-PARTITION BY
-    LIST (partition_id);
-
--- Physical shards for transfer_detail
-CREATE TABLE IF NOT EXISTS gameplay.user_team_booster_transfer_detail_shard0 PARTITION OF gameplay.user_team_booster_transfer_detail FOR
-VALUES
-    IN (0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
-
-CREATE TABLE IF NOT EXISTS gameplay.user_team_booster_transfer_detail_shard1 PARTITION OF gameplay.user_team_booster_transfer_detail FOR
-VALUES
-    IN (
-        10,
-        11,
-        12,
-        13,
-        14,
-        15,
-        16,
-        17,
-        18,
-        19
-    );
-
-CREATE TABLE IF NOT EXISTS gameplay.user_team_booster_transfer_detail_shard2 PARTITION OF gameplay.user_team_booster_transfer_detail FOR
-VALUES
-    IN (
-        20,
-        21,
-        22,
-        23,
-        24,
-        25,
-        26,
-        27,
-        28,
-        29
-    );
+    PRIMARY KEY (partition_id, season_id, user_id, team_no, gameset_id, gameday_id, transfer_id, booster_id)
+) PARTITION BY LIST (partition_id) (
+    PARTITION shard_0 VALUES IN (0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
+    PARTITION shard_1 VALUES IN (10, 11, 12, 13, 14, 15, 16, 17, 18, 19),
+    PARTITION shard_2 VALUES IN (20, 21, 22, 23, 24, 25, 26, 27, 28, 29)
+);
 
 -- ================================================================
 -- REFERENCE DATA POPULATION
@@ -364,10 +203,16 @@ DECLARE
     v_device_id SMALLINT;
     v_login_platform_source SMALLINT;
     v_partition_id SMALLINT;
-    v_user_record RECORD;
     v_response JSONB;
     v_current_time TIMESTAMPTZ := now();
     v_user_id NUMERIC;
+    v_user_guid UUID;
+    v_first_name STRING;
+    v_last_name STRING;
+    v_user_name STRING;
+    v_profanity_status SMALLINT;
+    v_user_properties JSONB;
+    v_user_preferences JSONB;
 BEGIN
     -- Extract request parameters
     v_source_id := request_data->>'source_id';
@@ -380,21 +225,22 @@ BEGIN
     -- Check if user exists
     SELECT u.user_id, u.user_guid, u.first_name, u.last_name, u.user_name,
            u.profanity_status, u.user_properties, u.user_preferences
-    INTO v_user_record
+    INTO v_user_id, v_user_guid, v_first_name, v_last_name, v_user_name,
+         v_profanity_status, v_user_properties, v_user_preferences
     FROM game_user.users u
     WHERE u.source_id = v_source_id AND u.partition_id = v_partition_id;
     
-    IF FOUND THEN
+    IF v_user_id IS NOT NULL THEN
         -- User exists, return user details
         v_response := jsonb_build_object(
             'data', jsonb_build_object(
                 'device_id', v_device_id,
-                'guid', v_user_record.user_guid,
+                'guid', v_user_guid,
                 'source_id', v_source_id,
-                'user_name', v_user_record.user_name,
-                'first_name', v_user_record.first_name,
-                'last_name', v_user_record.last_name,
-                'profanity_status', v_user_record.profanity_status,
+                'user_name', v_user_name,
+                'first_name', v_first_name,
+                'last_name', v_last_name,
+                'profanity_status', v_profanity_status,
                 'preferences_saved', true,
                 'login_platform_source', v_login_platform_source,
                 'user_session', jsonb_build_object(
@@ -402,8 +248,8 @@ BEGIN
                     'created_at', v_current_time,
                     'expires_at', v_current_time + interval '24 hours'
                 ),
-                'user_properties', COALESCE(v_user_record.user_properties, '[]'::jsonb),
-                'user_preferences', COALESCE(v_user_record.user_preferences, '[]'::jsonb)
+                'user_properties', COALESCE(v_user_properties, '[]'::jsonb),
+                'user_preferences', COALESCE(v_user_preferences, '[]'::jsonb)
             ),
             'meta', jsonb_build_object(
                 'retval', 1,
@@ -431,16 +277,17 @@ BEGIN
             COALESCE(request_data->'user_properties', '[]'::jsonb),
             COALESCE(request_data->'user_preferences', '[]'::jsonb),
             1
-        ) RETURNING user_id, user_guid, first_name, last_name, user_name INTO v_user_record;
+        ) RETURNING user_id, user_guid, first_name, last_name, user_name
+        INTO v_user_id, v_user_guid, v_first_name, v_last_name, v_user_name;
         
         v_response := jsonb_build_object(
             'data', jsonb_build_object(
                 'device_id', v_device_id,
-                'guid', v_user_record.user_guid,
+                'guid', v_user_guid,
                 'source_id', v_source_id,
-                'user_name', v_user_record.user_name,
-                'first_name', v_user_record.first_name,
-                'last_name', v_user_record.last_name,
+                'user_name', v_user_name,
+                'first_name', v_first_name,
+                'last_name', v_last_name,
                 'profanity_status', 1,
                 'preferences_saved', true,
                 'login_platform_source', v_login_platform_source,
