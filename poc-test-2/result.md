@@ -91,3 +91,54 @@ CIRCUIT BREAKER: CLOSED
 ================================================================================
 🎉 Complete ScyllaDB Fantasy Game POC with ALL APIs completed successfully
 🔌 Disconnected from ScyllaDB
+
+Windows-
+================================================================================
+FANTASY GAME SCYLLADB POC - COMPLETE PERFORMANCE REPORT
+================================================================================
+Database: ScyllaDB
+Generated: 2025-08-04T19:22:34.103Z
+
+SCYLLADB SPECIFIC METRICS:
+-----------------------------------
+Average Latency: 39ms
+Peak Throughput: 525 ops/sec
+Current Throughput: 291 ops/sec
+Peak Concurrency: 40
+Total Operations: 505000
+Circuit Breaker: OK
+
+Total Errors: 0 (0.00%)
+Transfer Validation Errors: 0
+Memory Usage: 26MB heap
+
+OPERATION PERFORMANCE SUMMARY:
+--------------------------------------------------
+USERLOGIN            | 19.87ms avg, 100000 calls
+GETUSERPROFILE       | 10.2ms avg, 200000 calls
+SAVETEAM             | 30.45ms avg, 100000 calls
+GETUSERTEAMS         | 10.42ms avg, 100000 calls
+TRANSFERTEAM         | 30.8ms avg, 5000 calls
+
+DETAILED STATISTICS:
+--------------------------------------------------------------------------------
+Operation       Calls    Avg(ms)  Med(ms)  Min(ms)  Max(ms)  P95(ms)  P99(ms)
+--------------------------------------------------------------------------------
+userLogin       100000   19.87    18.65    3.49     245.12   32.3     46.05
+getUserProfile  200000   10.2     9.56     1.63     193.66   17.69    25.76
+saveTeam        100000   30.45    29.13    7.23     269.42   45.72    63.17
+getUserTeams    100000   10.42    9.74     1.51     242.49   18.1     26.34
+transferTeam    5000     30.8     29.58    5.55     245.2    47.3     62.89
+
+SCYLLADB OPTIMIZATIONS ACTIVE:
+----------------------------------------
+SHARD AWARENESS: Enabled
+BATCH OPTIMIZATION: Enhanced for ScyllaDB
+CONCURRENCY LEVEL: High (40 peak concurrent)
+CONSISTENCY LEVEL: LOCAL_QUORUM
+CONNECTION POOLING: ScyllaDB-Optimized
+CIRCUIT BREAKER: CLOSED
+
+================================================================================
+🎉 Complete ScyllaDB Fantasy Game POC with ALL APIs completed successfully
+🔌 Disconnected from ScyllaDB
