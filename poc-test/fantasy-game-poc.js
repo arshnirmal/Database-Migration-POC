@@ -49,7 +49,7 @@ const OPTIMIZED_CASSANDRA_CONFIG = {
         keepAliveDelay: 0
     },
     queryOptions: {
-        consistency: cassandra.types.consistencies.localOne,
+        consistency: cassandra.types.consistencies.localQuorum,
         prepare: true,
         autoPage: false
     }

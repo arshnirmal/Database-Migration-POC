@@ -1,7 +1,7 @@
 {
-  "name": "fantasy-game-scylladb-poc",
+  "name": "fantasy-game-cockroachdb-poc",
   "version": "1.0.0",
-  "description": "Node.js POC for Fantasy Game using ScyllaDB",
+  "description": "Node.js POC for Fantasy Game using CockroachDB",
   "main": "fantasy-game-poc.js",
   "scripts": {
     "start": "node fantasy-game-poc.js",
@@ -10,7 +10,7 @@
     "test-skip-data": "node fantasy-game-poc.js --skip-data --tests 200"
   },
   "dependencies": {
-    "cassandra-driver": "^4.7.2",
+    "pg": "^8.11.3",
     "uuid": "^9.0.1",
     "commander": "^11.1.0",
     "colors": "^1.4.0"
@@ -18,7 +18,7 @@
   "engines": {
     "node": ">=14.0.0"
   },
-  "keywords": ["scylladb", "poc", "fantasy", "game", "performance", "cassandra"],
+  "keywords": ["cockroachdb", "poc", "fantasy", "game", "performance", "postgres"],
   "author": "Your Name",
   "license": "MIT"
 }
